@@ -248,7 +248,7 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
       try (PagedIterator pagedIterator = new PagedIterator(this, ObjectType.GROUPS, subdomain)) {
         pagedIterator.hasNext();
       } catch (IOException | ConnectionTimeoutException e) {
-        collector.addFailure(String.format("There was issue communicating with Zendesk subdomain '%s'.",
+        collector.addFailure(String.format("There was an issue communicating with Zendesk subdomain '%s'.",
             subdomain), null)
           .withConfigProperty(BaseZendeskSourceConfig.PROPERTY_SUBDOMAINS);
       }

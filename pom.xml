@@ -53,6 +53,7 @@
   </scm>
 
   <properties>
+    <jacoco.redirectTestOutputToFile>true</jacoco.redirectTestOutputToFile>
     <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- version properties -->
@@ -67,6 +68,9 @@
     <mockito.version>1.10.19</mockito.version>
     <guice.version>4.0</guice.version>
     <zendesk-java-client.version>0.14.1</zendesk-java-client.version>
+    <testSourceLocation>${project.basedir}/src/test/java/</testSourceLocation>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <repositories>
@@ -81,14 +85,14 @@
   </repositories>
 
   <distributionManagement>
-      <repository>
-          <id>sonatype.release</id>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-      </repository>
-      <snapshotRepository>
-          <id>sonatype.snapshots</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
+    <repository>
+      <id>sonatype.release</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>sonatype.snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <dependencies>
@@ -272,6 +276,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.8</version>
+    </dependency>
+    <dependency>
       <groupId>io.cdap.cdap</groupId>
       <artifactId>hydrator-test</artifactId>
       <version>${cdap.version}</version>
@@ -292,6 +301,7 @@
   </dependencies>
 
   <build>
+    <testSourceDirectory>${testSourceLocation}</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -323,11 +333,40 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.6</version>
+          <executions>
+            <execution>
+              <id>prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+              <configuration>
+                <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                <propertyName>surefireArgLine</propertyName>
+                <outputDirectory>target/jacoco-ut</outputDirectory>
+              </configuration>
+            </execution>
+            <execution>
+              <id>report</id>
+              <phase>test</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                <outputDirectory>target/jacoco-ut</outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.14.1</version>
           <configuration>
-            <argLine>-Xmx5000m -Djava.awt.headless=true -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"
+            <argLine>${surefireArgLine} -Xmx5000m -Djava.awt.headless=true -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"
               -Djava.net.preferIPv4Stack=true</argLine>
             <reuseForks>false</reuseForks>
             <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
@@ -423,6 +462,10 @@
                 <consoleOutput>true</consoleOutput>
                 <failsOnError>true</failsOnError>
                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                <testSourceDirectories>
+                  <testSourceDirectory>src/test/java</testSourceDirectory>
+                  <testSourceDirectory>src/e2e-test/java</testSourceDirectory>
+                </testSourceDirectories>
                 <excludes>**/org/apache/cassandra/**,**/org/apache/hadoop/**</excludes>
               </configuration>
               <goals>
@@ -466,6 +509,11 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.6</version>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
@@ -493,6 +541,101 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>e2e-tests</id>
+      <properties>
+        <testSourceLocation>src/e2e-test/java</testSourceLocation>
+      </properties>
+      <build>
+        <testResources>
+          <testResource>
+            <directory>src/e2e-test/resources</directory>
+          </testResource>
+        </testResources>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>3.0.0-M5</version>
+            <configuration>
+              <includes>
+                <include>TestRunner.java</include>
+              </includes>
+              <environmentVariables>
+                <ZENDESK_EMAIL>
+                  ${ZENDESK_EMAIL}
+                </ZENDESK_EMAIL>
+                <ZENDESK_API_TOKEN>
+                  ${ZENDESK_API_TOKEN}
+                </ZENDESK_API_TOKEN>
+              </environmentVariables>
+
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>net.masterthought</groupId>
+            <artifactId>maven-cucumber-reporting</artifactId>
+            <version>5.5.0</version>
+            <executions>
+              <execution>
+                <id>execution</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+                <configuration>
+                  <projectName>Cucumber Reports</projectName> <!-- Replace with project name -->
+                  <outputDirectory>target/cucumber-reports/advanced-reports</outputDirectory>
+                  <buildNumber>1</buildNumber>
+                  <skip>false</skip>
+                  <inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>
+                  <jsonFiles> <!-- supports wildcard or name pattern -->
+                    <param>**/*.json</param>
+                  </jsonFiles> <!-- optional, defaults to outputDirectory if not specified -->
+                  <classificationDirectory>${project.build.directory}/cucumber-reports</classificationDirectory>
+                  <checkBuildResult>true</checkBuildResult>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
+            <scope>compile</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>io.cdap.tests.e2e</groupId>
+          <artifactId>cdap-e2e-framework</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
     <profile>
       <id>release</id>
       <build>
