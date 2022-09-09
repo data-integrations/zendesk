@@ -14,16 +14,21 @@
  * the License.
  */
 
-package io.cdap.plugin.zendesk.source.batch.util;
+package io.cdap.plugin.zendesk.source.common;
+
+import java.util.regex.Pattern;
 
 /**
  * List of Zendesk Batch Source Constants.
  */
-public class ZendeskBatchSourceConstants {
+public class ZendeskConstants {
 
   public static final String PROPERTY_CONFIG_JSON = "cdap.zendesk.config";
   public static final String PROPERTY_OBJECTS_JSON = "cdap.zendesk.objects";
   public static final String PROPERTY_SCHEMAS_JSON = "cdap.zendesk.schemas";
   public static final String PROPERTY_PLUGIN_NAME = "cdap.zendesk.plugin.name";
 
+  public static final Pattern RESTRICTED_PATTERN = Pattern.compile("%2B", Pattern.LITERAL);
+  public static final String COMMENT = "Comment";
+  public static final String BASE_URL = "https://%s.zendesk.com/api/v2/%s";
 }

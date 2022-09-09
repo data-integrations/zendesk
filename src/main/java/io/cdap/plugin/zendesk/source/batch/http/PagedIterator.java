@@ -19,13 +19,12 @@ package io.cdap.plugin.zendesk.source.batch.http;
 import com.github.rholder.retry.RetryException;
 import com.github.rholder.retry.Retryer;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.zendesk.source.batch.ZendeskBatchSourceConfig;
 import io.cdap.plugin.zendesk.source.common.ObjectType;
+import io.cdap.plugin.zendesk.source.common.ZendeskConstants;
 
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
@@ -45,27 +44,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * Iterable for Zendesk page response.
  */
 public class PagedIterator implements Iterator<String>, Closeable {
 
-  private static final Pattern RESTRICTED_PATTERN = Pattern.compile("%2B", Pattern.LITERAL);
   private static final String NEXT_PAGE = "next_page";
-  private static final String NEXT_CURSOR_URL = "after_url";
   private static final String END_TIME = "end_time";
   private static final String COUNT = "count";
-  private static final String COMMENT = "Comment";
   private static final int INCREMENTAL_EXPORT_MAX_COUNT_BY_REQUEST = 1000;
   private static final long FIVE_MINUTES = TimeUnit.MINUTES.toMillis(5);
   private static final String RETRY_AFTER = "retry-after";
 
   private static final Gson GSON = new GsonBuilder().create();
+  ZendeskUtils zendeskUtils = new ZendeskUtils();
 
   private final ZendeskBatchSourceConfig config;
   private final CloseableHttpClient httpClient;
@@ -100,8 +95,8 @@ public class PagedIterator implements Iterator<String>, Closeable {
     this.objectType = objectType;
 
     String firstPage = HttpUtil.createFirstPageUrl(config, objectType, subdomain, entityId);
-    this.httpClient = HttpUtil.createHttpClient(config);
-    this.httpClientContext = HttpUtil.createHttpContext(config, firstPage);
+    this.httpClient = HttpUtil.createHttpClient(config.getConnection());
+    this.httpClientContext = HttpUtil.createHttpContext(config.getConnection(), firstPage);
     this.nextPage = firstPage;
   }
 
@@ -143,7 +138,7 @@ public class PagedIterator implements Iterator<String>, Closeable {
   @VisibleForTesting
   Map<String, Object> getResponseAsMap() throws IOException, InterruptedException {
     //replace out %2B with + due to API restriction
-    URI uri = URI.create(RESTRICTED_PATTERN.matcher(nextPage).replaceAll("+"));
+    URI uri = URI.create(ZendeskConstants.RESTRICTED_PATTERN.matcher(nextPage).replaceAll("+"));
     try (CloseableHttpResponse response = httpClient.execute(
       new HttpGet(uri), httpClientContext)) {
       StatusLine statusLine = response.getStatusLine();
@@ -173,6 +168,7 @@ public class PagedIterator implements Iterator<String>, Closeable {
     // Commenting cursor based pagination code as Zendesk APIs are having data loss issue with cursor pagination.
     // Will uncomment this code once issue will get fixed from zendesk side.
     // Link to track the issue {@link https://cdap.atlassian.net/browse/PLUGIN-1372}
+    //  private static final String NEXT_CURSOR_URL = "after_url";
 //    if (objectType.equals(ObjectType.TICKETS) || objectType.equals(ObjectType.USERS)) {
 //      return (String) responseMap.get(NEXT_CURSOR_URL);
 //    }
@@ -210,7 +206,7 @@ public class PagedIterator implements Iterator<String>, Closeable {
     if (objectType.getChildKey() == null) {
       return responseObjects
         .stream()
-        .map(this::objectMapToJsonString)
+        .map(t -> zendeskUtils.objectMapToJsonString(t, objectType, config.getTableNameField()))
         .iterator();
     }
 
@@ -219,62 +215,9 @@ public class PagedIterator implements Iterator<String>, Closeable {
       .flatMap(responseObject ->
         ((List<Object>) ((Map) responseObject).get(objectType.getChildKey()))
           .stream())
-      .filter(map -> COMMENT.equals(((Map) map).get("event_type")))
-      .map(this::objectMapToJsonString)
+      .filter(map -> ZendeskConstants.COMMENT.equals(((Map) map).get("event_type")))
+      .map(t -> zendeskUtils.objectMapToJsonString(t, objectType, config.getTableNameField()))
       .iterator();
   }
 
-  private String objectMapToJsonString(Object map) {
-    Map objectMap = (Map) map;
-    replaceKeys(objectMap, objectType.getObjectSchema());
-    objectMap.put(config.getTableNameField(), objectType.getObjectName().replace(" ", "_"));
-    return GSON.toJson(map);
-  }
-
-  @VisibleForTesting
-  void replaceKeys(Map map, Schema schema) {
-    if (map == null || map.isEmpty() || schema == null) {
-      return;
-    }
-    List<Schema.Field> fields = schema.getFields();
-    for (Schema.Field field : fields) {
-      String name = field.getName();
-      String underscoreName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name);
-      if (!name.equals(underscoreName) && map.containsKey(underscoreName)) {
-        map.put(name, map.remove(underscoreName));
-      }
-      Schema fieldSchema = field.getSchema();
-      if (isRecord(fieldSchema)) {
-        Map recordMap = (Map) map.get(name);
-        Schema recordSchema = getRecordSchema(fieldSchema);
-        replaceKeys(recordMap, recordSchema);
-      }
-    }
-  }
-
-  @VisibleForTesting
-  boolean isRecord(Schema fieldSchema) {
-    Schema.Type schemaType = fieldSchema.getType();
-    return schemaType == Schema.Type.RECORD
-      || (schemaType == Schema.Type.UNION
-      && fieldSchema.getUnionSchemas().stream()
-      .map(this::isRecord)
-      .reduce(Boolean::logicalOr)
-      .orElse(false));
-  }
-
-  @VisibleForTesting
-  Schema getRecordSchema(Schema fieldSchema) {
-    Schema.Type schemaType = fieldSchema.getType();
-    if (schemaType == Schema.Type.RECORD) {
-      return fieldSchema;
-    }
-    if (schemaType == Schema.Type.UNION) {
-      return fieldSchema.getUnionSchemas().stream()
-        .map(this::getRecordSchema)
-        .filter(Objects::nonNull)
-        .findFirst().orElse(null);
-    }
-    return null;
-  }
 }

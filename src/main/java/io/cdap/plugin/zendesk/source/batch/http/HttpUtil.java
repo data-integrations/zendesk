@@ -20,6 +20,7 @@ import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
 import com.google.common.base.Strings;
+import io.cdap.plugin.zendesk.connector.ZendeskConnectorConfig;
 import io.cdap.plugin.zendesk.source.batch.ZendeskBatchSourceConfig;
 import io.cdap.plugin.zendesk.source.common.ObjectType;
 
@@ -71,7 +72,7 @@ public class HttpUtil {
    * @param config The batch source config
    * @return The instance of CloseableHttpClient object
    */
-  public static CloseableHttpClient createHttpClient(ZendeskBatchSourceConfig config) {
+  public static CloseableHttpClient createHttpClient(ZendeskConnectorConfig config) {
     HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
     Long connectTimeoutMillis = TimeUnit.SECONDS.toMillis(config.getConnectTimeout());
     Long readTimeoutMillis = TimeUnit.SECONDS.toMillis(config.getReadTimeout());
@@ -90,7 +91,7 @@ public class HttpUtil {
    * @param url    The url
    * @return The instance of HttpClientContext object
    */
-  public static HttpClientContext createHttpContext(ZendeskBatchSourceConfig config, String url) {
+  public static HttpClientContext createHttpContext(ZendeskConnectorConfig config, String url) {
     String adminEmail = config.getAdminEmail();
     String apiToken = config.getApiToken();
     URI uri = URI.create(url);
@@ -163,7 +164,7 @@ public class HttpUtil {
   public static Retryer<Map<String, Object>> buildRetryer(ZendeskBatchSourceConfig config) {
     return RetryerBuilder.<Map<String, Object>>newBuilder()
       .retryIfExceptionOfType(RateLimitException.class)
-      .withStopStrategy(StopStrategies.stopAfterAttempt(config.getMaxRetryCount()))
+      .withStopStrategy(StopStrategies.stopAfterAttempt(config.getConnection().getMaxRetryCount()))
       .build();
   }
 

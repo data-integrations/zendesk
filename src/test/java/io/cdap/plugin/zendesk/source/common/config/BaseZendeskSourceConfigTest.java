@@ -20,9 +20,11 @@ import io.cdap.cdap.etl.api.validation.CauseAttributes;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 
+import io.cdap.plugin.zendesk.connector.ZendeskConnectorConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 public class BaseZendeskSourceConfigTest {
@@ -30,12 +32,13 @@ public class BaseZendeskSourceConfigTest {
   private static final String MOCK_STAGE = "mockStage";
 
   @Test
-  public void testValidate() {
+  public void testValidate() throws IOException {
     BaseZendeskSourceConfig config = new BaseZendeskSourceConfig(
       "reference",
       "email@test.com",
       "apiToken",
       "subdomain",
+      1, 1, 1,
       "Groups",
       "");
 
@@ -45,12 +48,12 @@ public class BaseZendeskSourceConfigTest {
   }
 
   @Test
-  public void testInvalidEmail() {
+  public void testInvalidEmail() throws IOException {
     BaseZendeskSourceConfig config = new BaseZendeskSourceConfig(
       "reference",
       "email",
       "apiToken",
-      "subdomain",
+      "subdomain", 1, 1, 1,
       "Groups",
       "");
 
@@ -60,17 +63,17 @@ public class BaseZendeskSourceConfigTest {
     Assert.assertEquals(1, collector.getValidationFailures().size());
     List<ValidationFailure.Cause> causeList = collector.getValidationFailures().get(0).getCauses();
     Assert.assertEquals(1, causeList.size());
-    Assert.assertEquals(BaseZendeskSourceConfig.PROPERTY_ADMIN_EMAIL, collector.getValidationFailures().get(0)
+    Assert.assertEquals(ZendeskConnectorConfig.PROPERTY_ADMIN_EMAIL, collector.getValidationFailures().get(0)
       .getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
   }
 
   @Test
-  public void testValidateObjectsToPullEmpty() {
+  public void testValidateObjectsToPullEmpty() throws IOException {
     BaseZendeskSourceConfig config = new BaseZendeskSourceConfig(
       "reference",
       "email@test.com",
       "apiToken",
-      "subdomain",
+      "subdomain", 1, 1, 1,
       "",
       "");
 
@@ -80,12 +83,12 @@ public class BaseZendeskSourceConfigTest {
   }
 
   @Test
-  public void testValidateObjectsToSkip() {
+  public void testValidateObjectsToSkip() throws IOException {
     BaseZendeskSourceConfig config = new BaseZendeskSourceConfig(
       "reference",
       "email@test.com",
       "apiToken",
-      "subdomain",
+      "subdomain", 1, 1, 1,
       "Groups",
       "Groups");
 

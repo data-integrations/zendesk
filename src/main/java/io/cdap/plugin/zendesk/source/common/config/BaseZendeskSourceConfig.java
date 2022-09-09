@@ -24,13 +24,16 @@ import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.IdUtils;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.common.ReferencePluginConfig;
+import io.cdap.plugin.zendesk.connector.ZendeskConnectorConfig;
 import io.cdap.plugin.zendesk.source.common.ObjectType;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,9 +49,6 @@ import javax.annotation.Nullable;
  */
 public class BaseZendeskSourceConfig extends ReferencePluginConfig {
 
-  public static final String PROPERTY_ADMIN_EMAIL = "adminEmail";
-  public static final String PROPERTY_API_TOKEN = "apiToken";
-  public static final String PROPERTY_SUBDOMAINS = "subdomains";
   public static final String PROPERTY_OBJECTS_TO_PULL = "objectsToPull";
   public static final String PROPERTY_OBJECTS_TO_SKIP = "objectsToSkip";
 
@@ -68,20 +68,6 @@ public class BaseZendeskSourceConfig extends ReferencePluginConfig {
     "Users"
   };
 
-  @Name(PROPERTY_ADMIN_EMAIL)
-  @Description("Zendesk admin email.")
-  @Macro
-  private final String adminEmail;
-
-  @Name(PROPERTY_API_TOKEN)
-  @Description("Zendesk API token.")
-  @Macro
-  private final String apiToken;
-
-  @Name(PROPERTY_SUBDOMAINS)
-  @Description("Zendesk Subdomains to read objects from.")
-  @Macro
-  private final String subdomains;
 
   @Name(PROPERTY_OBJECTS_TO_PULL)
   @Description("Objects to pull from Zendesk API.")
@@ -93,6 +79,17 @@ public class BaseZendeskSourceConfig extends ReferencePluginConfig {
   @Description("Objects to skip from Zendesk API.")
   @Nullable
   private final String objectsToSkip;
+
+  @Name(ConfigUtil.NAME_USE_CONNECTION)
+  @Nullable
+  @Description("Whether to use an existing connection.")
+  private Boolean useConnection;
+
+  @Name(ConfigUtil.NAME_CONNECTION)
+  @Macro
+  @Nullable
+  @Description("The existing connection to use.")
+  private ZendeskConnectorConfig connection;
 
   /**
    * Constructor for BaseZendeskSourceConfig object.
@@ -108,26 +105,21 @@ public class BaseZendeskSourceConfig extends ReferencePluginConfig {
                                  String adminEmail,
                                  String apiToken,
                                  String subdomains,
+                                 Integer maxRetryCount,
+                                 Integer connectTimeout,
+                                 Integer readTimeout,
                                  @Nullable String objectsToPull,
                                  @Nullable String objectsToSkip) {
     super(referenceName);
-    this.adminEmail = adminEmail;
-    this.apiToken = apiToken;
-    this.subdomains = subdomains;
+    this.connection = new ZendeskConnectorConfig(adminEmail, apiToken, subdomains, maxRetryCount, connectTimeout,
+                                                 readTimeout);
     this.objectsToPull = objectsToPull;
     this.objectsToSkip = objectsToSkip;
   }
 
-  public String getAdminEmail() {
-    return adminEmail;
-  }
-
-  public String getApiToken() {
-    return apiToken;
-  }
-
-  public Set<String> getSubdomains() {
-    return getList(subdomains);
+  @Nullable
+  public ZendeskConnectorConfig getConnection() {
+    return connection;
   }
 
   public Set<String> getObjectsToPull() {
@@ -158,12 +150,12 @@ public class BaseZendeskSourceConfig extends ReferencePluginConfig {
    *
    * @param collector The failure collector to collect the errors
    */
-  public void validate(FailureCollector collector) {
+  public void validate(FailureCollector collector) throws IOException {
     IdUtils.validateReferenceName(referenceName, collector);
-    if (!containsMacro(PROPERTY_ADMIN_EMAIL)
-      && !EmailValidator.getInstance().isValid(adminEmail)) {
-      collector.addFailure(String.format("'%s' is not a valid email.", adminEmail), null)
-        .withConfigProperty(PROPERTY_ADMIN_EMAIL);
+    if (!containsMacro(ZendeskConnectorConfig.PROPERTY_ADMIN_EMAIL)
+      && !EmailValidator.getInstance().isValid(connection.getAdminEmail())) {
+      collector.addFailure(String.format("'%s' is not a valid email.", connection.getAdminEmail()), null)
+        .withConfigProperty(ZendeskConnectorConfig.PROPERTY_ADMIN_EMAIL);
     }
     if (!Strings.isNullOrEmpty(objectsToSkip)
       && getObjects().isEmpty()) {

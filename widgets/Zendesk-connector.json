@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "spec-version": "1.0"
+  },
+  "display-name": "Zendesk",
+  "configuration-groups": [
+    {
+      "label": "Credentials",
+      "properties": [
+
+        {
+          "widget-type": "textbox",
+          "label": "Admin Email",
+          "name": "adminEmail"
+        },
+        {
+          "widget-type": "password",
+          "label": "API Token",
+          "name": "apiToken"
+        },
+        {
+          "widget-type": "csv",
+          "label": "Subdomains",
+          "name": "subdomains",
+          "widget-attributes": {
+            "delimiter": ",",
+            "value-placeholder": "List of Subdomains to read object from."
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Max Retry Count",
+          "name": "maxRetryCount",
+          "widget-attributes": {
+            "min": "0",
+            "default": "10"
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Connect Timeout",
+          "name": "connectTimeout",
+          "widget-attributes": {
+            "min": "0",
+            "default": "300"
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Read Timeout",
+          "name": "readTimeout",
+          "widget-attributes": {
+            "min": "0",
+            "default": "300"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": []
+}

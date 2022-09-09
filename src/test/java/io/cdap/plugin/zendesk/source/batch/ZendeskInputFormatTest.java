@@ -17,7 +17,7 @@ package io.cdap.plugin.zendesk.source.batch;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.cdap.plugin.zendesk.source.batch.util.ZendeskBatchSourceConstants;
+import io.cdap.plugin.zendesk.source.common.ZendeskConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
@@ -56,8 +56,8 @@ public class ZendeskInputFormatTest {
     objectList.add("object");
     String objectJson = GSON.toJson(objectList);
     String configJson = GSON.toJson(config);
-    Mockito.when(configuration.get(ZendeskBatchSourceConstants.PROPERTY_OBJECTS_JSON)).thenReturn(objectJson);
-    Mockito.when(configuration.get(ZendeskBatchSourceConstants.PROPERTY_CONFIG_JSON)).thenReturn(configJson);
+    Mockito.when(configuration.get(ZendeskConstants.PROPERTY_OBJECTS_JSON)).thenReturn(objectJson);
+    Mockito.when(configuration.get(ZendeskConstants.PROPERTY_CONFIG_JSON)).thenReturn(configJson);
     List<InputSplit> splits = zendeskInputFormat.getSplits(context);
     Assert.assertEquals(1, splits.size());
   }

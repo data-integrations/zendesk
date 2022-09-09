@@ -506,7 +506,7 @@ public class ObjectTypeSchemaConstants {
       Schema.Field.of("width", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
       Schema.Field.of("height", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
       Schema.Field.of("size", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
-      Schema.Field.of("thumbnails", Schema.nullableOf(Schema.arrayOf(Schema.nullableOf(Schema.recordOf(
+      Schema.Field.of("thumbnails", Schema.arrayOf(Schema.recordOf(
         "photoObject",
         Schema.Field.of("id", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
         Schema.Field.of("fileName", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
@@ -519,7 +519,7 @@ public class ObjectTypeSchemaConstants {
         Schema.Field.of("size", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
         Schema.Field.of("inline", Schema.nullableOf(Schema.of(Schema.Type.BOOLEAN))),
         Schema.Field.of("deleted", Schema.nullableOf(Schema.of(Schema.Type.BOOLEAN)))
-      ))))),
+      ))),
       Schema.Field.of("inline", Schema.nullableOf(Schema.of(Schema.Type.BOOLEAN))),
       Schema.Field.of("deleted", Schema.nullableOf(Schema.of(Schema.Type.BOOLEAN)))
     ))),

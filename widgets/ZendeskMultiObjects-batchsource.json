@@ -12,25 +12,6 @@
           "name": "referenceName"
         },
         {
-          "widget-type": "textbox",
-          "label": "Admin Email",
-          "name": "adminEmail"
-        },
-        {
-          "widget-type": "password",
-          "label": "API Token",
-          "name": "apiToken"
-        },
-        {
-          "widget-type": "csv",
-          "label": "Subdomains",
-          "name": "subdomains",
-          "widget-attributes": {
-            "delimiter": ",",
-            "value-placeholder": "List of Subdomains to read object from."
-          }
-        },
-        {
           "name": "objectsToPull",
           "label": "Object to Pull",
           "widget-type": "multi-select",
@@ -117,6 +98,13 @@
           }
         },
         {
+          "widget-type": "hidden",
+          "name": "zendeskBaseUrl",
+          "widget-attributes": {
+            "default": "https://%s.zendesk.com/api/v2/%s"
+          }
+        },
+        {
           "widget-type": "textbox",
           "label": "Table Name Field",
           "name": "tableNameField",
@@ -128,15 +116,58 @@
       ]
     },
     {
-      "label": "Advanced",
+      "label": "Connection",
       "properties": [
+        {
+          "widget-type": "toggle",
+          "label": "Use connection",
+          "name": "useConnection",
+          "widget-attributes": {
+            "on": {
+              "value": "true",
+              "label": "YES"
+            },
+            "off": {
+              "value": "false",
+              "label": "NO"
+            },
+            "default": "false"
+          }
+        },
+        {
+          "widget-type": "connection-select",
+          "label": "Connection",
+          "name": "connection",
+          "widget-attributes": {
+            "connectionType": "Zendesk"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Admin Email",
+          "name": "adminEmail"
+        },
+        {
+          "widget-type": "password",
+          "label": "API Token",
+          "name": "apiToken"
+        },
+        {
+          "widget-type": "csv",
+          "label": "Subdomains",
+          "name": "subdomains",
+          "widget-attributes": {
+            "delimiter": ",",
+            "value-placeholder": "List of Subdomains to read object from."
+          }
+        },
         {
           "widget-type": "number",
           "label": "Max Retry Count",
           "name": "maxRetryCount",
           "widget-attributes": {
             "min": "0",
-            "default": "20"
+            "default": "10"
           }
         },
         {
@@ -156,13 +187,6 @@
             "min": "0",
             "default": "300"
           }
-        },
-        {
-          "widget-type": "hidden",
-          "name": "zendeskBaseUrl",
-          "widget-attributes": {
-            "default": "https://%s.zendesk.com/api/v2/%s"
-          }
         }
       ]
     }
@@ -174,6 +198,52 @@
       "widget-attributes": {
         "schema-default-type": "string"
       }
+    }
+  ],
+  "filters": [
+    {
+      "name": "showConnectionProperties ",
+      "condition": {
+        "expression": "useConnection == false"
+      },
+      "show": [
+        {
+          "type": "property",
+          "name": "adminEmail"
+        },
+        {
+          "type": "property",
+          "name": "apiToken"
+        },
+        {
+          "type": "property",
+          "name": "subdomains"
+        },
+        {
+          "type": "property",
+          "name": "maxRetryCount"
+        },
+        {
+          "type": "property",
+          "name": "connectTimeout"
+        },
+        {
+          "type": "property",
+          "name": "readTimeout"
+        }
+      ]
+    },
+    {
+      "name": "showConnectionId",
+      "condition": {
+        "expression": "useConnection == true"
+      },
+      "show": [
+        {
+          "type": "property",
+          "name": "connection"
+        }
+      ]
     }
   ]
 }

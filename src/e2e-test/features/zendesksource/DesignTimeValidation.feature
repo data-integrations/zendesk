@@ -41,7 +41,7 @@ Feature: Zendesk Source - Design time validation scenarios
       | CLOUD_SUFI |
     And Select dropdown plugin property: "objectsToPull" with option value: "Groups"
     And Click on the Validate button
-    Then Verify that the Plugin Property: "subdomains" is displaying an in-line error message: "invalid.property.credentials"
+    Then Verify that the Plugin Property: "adminEmail" is displaying an in-line error message: "invalid.property.credentials"
 
   @TS-ZD-DSGN-ERROR-03
   Scenario: Verify validation message for invalid subdomain

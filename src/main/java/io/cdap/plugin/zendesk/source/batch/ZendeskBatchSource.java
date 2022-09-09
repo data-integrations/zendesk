@@ -29,10 +29,14 @@ import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.plugin.zendesk.connector.ZendeskConnector;
 import io.cdap.plugin.zendesk.source.common.config.BaseZendeskSourceConfig;
 
 import org.apache.hadoop.io.NullWritable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 
 /**
@@ -63,7 +67,7 @@ public class ZendeskBatchSource extends BatchSource<NullWritable, StructuredReco
   }
 
   @Override
-  public void prepareRun(BatchSourceContext batchSourceContext) {
+  public void prepareRun(BatchSourceContext batchSourceContext) throws IOException {
     FailureCollector failureCollector = batchSourceContext.getFailureCollector();
     config.validate(failureCollector);
     failureCollector.getOrThrowException();
