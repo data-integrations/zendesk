@@ -3,7 +3,10 @@
 
 Description
 -----------
-This source reads objects from Zendesk.
+This source reads objects from Zendesk. It extracts reportable data from the Zendesk objects. 
+The Zendesk Batch Source plugin enables bulk data extraction from Zendesk. 
+You can configure and execute bulk data transfers from Zendesk without any coding.
+
 Examples of objects are Article Comments, Post Comments, Requests Comments, Ticket Comments,
 Groups, Organizations, Satisfaction Ratings, Tags, Ticket Fields,
 Ticket Metrics, Ticket Metric Events, Tickets, Users.
@@ -16,19 +19,18 @@ Configuration
 
 ### Basic
 
-**Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata, etc.
+**Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata.
 
 **Admin Email:** Zendesk admin email.
 
 **API Token:** Zendesk API token. Can be obtained from the Zendesk Support Admin interface.
-Check out [Zendesk documentation](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-)
-for API Token generation.
+For API Token generation, see the [Zendesk documentation](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-).
 
 **Subdomains:** List of Zendesk Subdomains to read object from.
 
-**Object to Pull:** Objects to pull from Zendesk API.
+**Object to Pull:** Objects to pull from Zendesk API. Default is Groups.
 
-**Start Date:** Filter data to include only records which have Zendesk modified date is greater than
+**Start Date:** Filter data to include only records that have a Zendesk modified date that is greater than
 or equal to the specified date. The date must be provided in the date format:
 
 |              Format              |       Format Syntax       |          Example          |
@@ -39,7 +41,7 @@ or equal to the specified date. The date must be provided in the date format:
 
 Start Date is required for batch objects like: Ticket Comments, Organizations, Ticket Metric Events, Tickets, Users.
 
-**End Date:** Filter data to include only records which have Zendesk modified date is less than
+**End Date:** Filter data to include only records that have a Zendesk modified date that is less than
 the specified date. The date must be provided in the date format:
 
 |              Format              |       Format Syntax       |          Example          |
@@ -48,19 +50,19 @@ the specified date. The date must be provided in the date format:
 |                                  | YYYY-MM-DDThh:mm:ss-hh:mm | 1999-01-01T23:01:01-08:00 |
 |                                  | YYYY-MM-DDThh:mm:ssZ      | 1999-01-01T23:01:01Z      |
 
-Specifying this along with `Start Date` allows reading data modified within a specific time window.
+If you enter an End Date and Start Date, the data is modified within a specific time window.
 If no value is provided, no upper bound is applied.
 
-**Satisfaction Ratings Score:** Filter Satisfaction Ratings object to include only records which have Zendesk score
-equal to the specified score.
+**Satisfaction Ratings Score:** Filter Satisfaction Ratings object to include only records that have a Zendesk score
+equal to the specified score. Only applicable for the Satisfaction Rating object.
 
 ### Advanced
 
-**Max Retry Count:** Maximum number of retry attempts.
+**Max Retry Count:** Maximum number of retry attempts. Default is 20.
 
-**Connect Timeout:** Maximum time in seconds connection initialization can take.
+**Connect Timeout:** Maximum time in seconds for connection initialization. Default is 300.
 
-**Read Timeout:** Maximum time in seconds fetching data from the server can take.
+**Read Timeout:** Maximum time in seconds to fetch data from the server. Default is 300.
 
 Data Type Mappings from Zendesk to CDAP
 ----------
@@ -77,16 +79,44 @@ corresponding CDAP types.
 | Array                  | Array     |
 | Record                 | Record    |
 
-Data Duplication issues with Zendesk APIs
+
+Limitations
 ----------
-This plugin can return duplicate records for time-based exports as mentioned in Zendesk docs.
+
+Zendesk plugin supports two types of pagination: [offset](https://developer.zendesk.com/documentation/developer-tools/pagination/paginating-through-lists-using-offset-pagination/) and [time-based](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#time-based-incremental-exports)  pagination.
+Offset and Time-Based Pagination might result in data duplication.
+
+### Data Duplication issues with Zendesk APIs
+
+This plugin might return duplicate records for offset and time-based exports as mentioned in Zendesk docs.
 [Zendesk documentation](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#excluding-duplicate-items)
 
-Objects which support time-based exports:
-**Users**,
-**Tickets**,
-**Ticket Metric Events**,
-**Organizations**, and
-**Ticket Comments**.
+Objects that support both offset and time-based exports:
+Users,
+Tickets,
+Ticket Metric Events,
+Organizations, and
+Ticket Comments.
 
-To Solve the duplication issue, use Deduplicate plugin from Analytics list in between.
+To solve the duplication issue, add the Deduplicate plugin from the Analytics list after the Zendesk Batch Source in the pipeline.
+
+Supported Zendesk Objects
+----------
+
+| Objects Name          | Supported Pagination Type  | Endpoint URI (https://{subDomain}.zendesk.com/api/v2/) |
+|-----------------------|----------------------------|--------------------------------------------------------|
+| Users                 | Offset, Time-based         |incremental/users.json                                                       |
+| Tickets               | Offset, Time-based         |incremental/tickets.json                                                       |
+| Ticket Metric Events  | Offset, Time-based         |incremental/ticket_metric_events.json                                                       |
+| Ticket Metrics        | Offset                     |ticket_metrics.json                                                       |
+| Ticket Fields         | Offset                     |ticket_fields.json                                                       |
+| Tags                  | Offset                     |tags.json                                                        |
+| Satisfaction Ratings  | Offset                     |satisfaction_ratings.json                                                        |
+| Organizations         | Offset, Time-based         |incremental/organizations.json                                                        |
+| Groups                | Offset                     |groups.json                                                        |    
+| Ticket Comments       | Offset, Time-based         |incremental/ticket_events.json?include=comment_events                                                        |
+| Request Comments      | Offset                     |requests/{requestId}/comments.json*                                                        |
+| Post Comments         | Offset                     |community/users/{userId}/comments.json                                                        |
+| Article Comments      | Offset                     |help_center/users/{userId}/comments.json                                                        |
+
+*  The plugin retrieves the user and request lists, and the comments specific to a specific user and request.
