@@ -490,11 +490,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      pagedIterator.replaceKeys(actual, schema);
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      zendeskUtils.replaceKeys(actual, schema);
       Assert.assertEquals(expected, actual);
     }
-  }
 
   @Test
   public void testIsRecord() throws IOException {
@@ -520,12 +519,10 @@ public class PagedIteratorTest {
       300,
       "http://%s.localhosttestdomain/%s",
       "");
-
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      boolean actual = pagedIterator.isRecord(expected);
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      boolean actual = zendeskUtils.isRecord(expected);
       Assert.assertTrue(actual);
     }
-  }
 
   @Test
   public void testIsRecordInsideUnion() throws IOException {
@@ -552,11 +549,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      boolean actual = pagedIterator.isRecord(Schema.nullableOf(expected));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      boolean actual = zendeskUtils.isRecord(Schema.nullableOf(expected));
       Assert.assertTrue(actual);
     }
-  }
 
   @Test
   public void testIsRecordUnionSimple() throws IOException {
@@ -578,11 +574,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      boolean actual = pagedIterator.isRecord(Schema.nullableOf(Schema.of(Schema.Type.LONG)));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      boolean actual = zendeskUtils.isRecord(Schema.nullableOf(Schema.of(Schema.Type.LONG)));
       Assert.assertFalse(actual);
     }
-  }
 
   @Test
   public void testIsRecordSchemaSimple() throws IOException {
@@ -604,11 +599,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      boolean actual = pagedIterator.isRecord(Schema.of(Schema.Type.LONG));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      boolean actual = zendeskUtils.isRecord(Schema.of(Schema.Type.LONG));
       Assert.assertFalse(actual);
     }
-  }
 
   @Test
   public void testGetRecordSchema() throws IOException {
@@ -635,11 +629,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      Schema actual = pagedIterator.getRecordSchema(expected);
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      Schema actual = zendeskUtils.getRecordSchema(expected);
       Assert.assertEquals(expected, actual);
     }
-  }
 
   @Test
   public void testGetRecordSchemaInsideUnion() throws IOException {
@@ -666,11 +659,11 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      Schema actual = pagedIterator.getRecordSchema(Schema.nullableOf(expected));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      Schema actual = zendeskUtils.getRecordSchema(Schema.nullableOf(expected));
       Assert.assertEquals(expected, actual);
     }
-  }
+
 
   @Test
   public void testGetRecordSchemaUnionSimple() throws IOException {
@@ -692,11 +685,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      Schema actual = pagedIterator.getRecordSchema(Schema.nullableOf(Schema.of(Schema.Type.LONG)));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      Schema actual = zendeskUtils.getRecordSchema(Schema.nullableOf(Schema.of(Schema.Type.LONG)));
       Assert.assertNull(actual);
     }
-  }
 
   @Test
   public void testGetRecordSchemaSimple() throws IOException {
@@ -718,11 +710,10 @@ public class PagedIteratorTest {
       "http://%s.localhosttestdomain/%s",
       "");
 
-    try (PagedIterator pagedIterator = new PagedIterator(config, objectType, subdomain)) {
-      Schema actual = pagedIterator.getRecordSchema(Schema.of(Schema.Type.LONG));
+      ZendeskUtils zendeskUtils = new ZendeskUtils();
+      Schema actual = zendeskUtils.getRecordSchema(Schema.of(Schema.Type.LONG));
       Assert.assertNull(actual);
     }
-  }
 
   @Test
   public void testHasNext() throws IOException {

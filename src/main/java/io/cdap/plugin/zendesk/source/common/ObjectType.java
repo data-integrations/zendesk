@@ -29,54 +29,55 @@ public enum ObjectType {
   USERS_SIMPLE(
     "Users Simple", "users",
     "users.json",
-    false, null),
+    false, null, false),
   REQUESTS(
     "Requests", "requests",
     "requests.json",
-    false, null),
+    false, null, false
+  ),
   ARTICLE_COMMENTS(
     "Article Comments", "comments",
     "help_center/users/%s/comments.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_ARTICLE_COMMENTS),
+    false, ObjectTypeSchemaConstants.SCHEMA_ARTICLE_COMMENTS, true),
   POST_COMMENTS(
     "Post Comments", "comments",
     "community/users/%s/comments.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_POST_COMMENTS),
+    false, ObjectTypeSchemaConstants.SCHEMA_POST_COMMENTS, true),
   REQUESTS_COMMENTS(
     "Requests Comments", "comments",
     "requests/%s/comments.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_REQUESTS_COMMENTS),
+    false, ObjectTypeSchemaConstants.SCHEMA_REQUESTS_COMMENTS, true),
   TICKET_COMMENTS(
     "Ticket Comments", "ticket_events", "child_events",
     "incremental/ticket_events.json?include=comment_events",
-    true, ObjectTypeSchemaConstants.SCHEMA_TICKET_COMMENTS),
+    true, ObjectTypeSchemaConstants.SCHEMA_TICKET_COMMENTS, true),
   GROUPS(
     "Groups", "groups", "groups.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_GROUPS),
+    false, ObjectTypeSchemaConstants.SCHEMA_GROUPS, true),
   ORGANIZATIONS(
     "Organizations", "organizations", "incremental/organizations.json",
-    true, ObjectTypeSchemaConstants.SCHEMA_ORGANIZATIONS),
+    true, ObjectTypeSchemaConstants.SCHEMA_ORGANIZATIONS, true),
   SATISFACTION_RATINGS(
     "Satisfaction Ratings", "satisfaction_ratings", "satisfaction_ratings.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_SATISFACTION_RATINGS),
+    false, ObjectTypeSchemaConstants.SCHEMA_SATISFACTION_RATINGS, true),
   TAGS(
     "Tags", "tags", "tags.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_TAGS),
+    false, ObjectTypeSchemaConstants.SCHEMA_TAGS, true),
   TICKET_FIELDS(
     "Ticket Fields", "ticket_fields", "ticket_fields.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_TICKET_FIELDS),
+    false, ObjectTypeSchemaConstants.SCHEMA_TICKET_FIELDS, true),
   TICKET_METRICS(
     "Ticket Metrics", "ticket_metrics", "ticket_metrics.json",
-    false, ObjectTypeSchemaConstants.SCHEMA_TICKET_METRICS),
+    false, ObjectTypeSchemaConstants.SCHEMA_TICKET_METRICS, true),
   TICKET_METRIC_EVENTS(
     "Ticket Metric Events", "ticket_metric_events", "incremental/ticket_metric_events.json",
-    true, ObjectTypeSchemaConstants.SCHEMA_TICKET_METRIC_EVENTS),
+    true, ObjectTypeSchemaConstants.SCHEMA_TICKET_METRIC_EVENTS, true),
   TICKETS(
     "Tickets", "tickets", "incremental/tickets.json",
-    true, ObjectTypeSchemaConstants.SCHEMA_TICKETS),
+    true, ObjectTypeSchemaConstants.SCHEMA_TICKETS, true),
   USERS(
     "Users", "users", "incremental/users.json",
-    true, ObjectTypeSchemaConstants.SCHEMA_USERS);
+    true, ObjectTypeSchemaConstants.SCHEMA_USERS, true);
 
   private static final String CLASS_NAME = ObjectType.class.getName();
 
@@ -86,14 +87,16 @@ public enum ObjectType {
   private final String apiEndpoint;
   private final boolean batch;
   private final Schema objectSchema;
+  private final boolean samplingAllowed;
 
   ObjectType(String objectName,
              String responseKey,
              String apiEndpoint,
              boolean batch,
-             Schema objectSchema) {
+             Schema objectSchema,
+             boolean samplingAllowed) {
     this(objectName, responseKey, null,
-      apiEndpoint, batch, objectSchema);
+      apiEndpoint, batch, objectSchema, samplingAllowed);
   }
 
   ObjectType(String objectName,
@@ -101,13 +104,15 @@ public enum ObjectType {
              String childKey,
              String apiEndpoint,
              boolean batch,
-             Schema objectSchema) {
+             Schema objectSchema,
+             boolean samplingAllowed) {
     this.objectName = objectName;
     this.responseKey = responseKey;
     this.childKey = childKey;
     this.apiEndpoint = apiEndpoint;
     this.batch = batch;
     this.objectSchema = objectSchema;
+    this.samplingAllowed = samplingAllowed;
   }
 
   public String getObjectName() {
@@ -132,6 +137,10 @@ public enum ObjectType {
 
   public Schema getObjectSchema() {
     return objectSchema;
+  }
+
+  public boolean isSamplingAllowed() {
+    return samplingAllowed;
   }
 
   /**

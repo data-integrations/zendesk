@@ -23,16 +23,17 @@ import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.plugin.zendesk.source.batch.http.ConnectionTimeoutException;
-import io.cdap.plugin.zendesk.source.batch.http.PagedIterator;
+import io.cdap.plugin.zendesk.connector.ZendeskConnector;
 import io.cdap.plugin.zendesk.source.common.ObjectType;
 import io.cdap.plugin.zendesk.source.common.config.BaseZendeskSourceConfig;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 import javax.annotation.Nullable;
 
 /**
@@ -44,13 +45,11 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
   public static final String PROPERTY_START_DATE = "startDate";
   public static final String PROPERTY_END_DATE = "endDate";
   public static final String PROPERTY_SATISFACTION_RATINGS_SCORE = "satisfactionRatingsScore";
-  public static final String PROPERTY_MAX_RETRY_COUNT = "maxRetryCount";
-  public static final String PROPERTY_CONNECT_TIMEOUT = "connectTimeout";
-  public static final String PROPERTY_READ_TIMEOUT = "readTimeout";
   public static final String PROPERTY_URL = "zendeskBaseUrl";
   public static final String PROPERTY_SCHEMA = "schema";
   public static final String PROPERTY_TABLE_NAME_FIELD = "tableNameField";
   public static final String TABLE_NAME_FIELD_DEFAULT = "tablename";
+  private static final Logger LOG = LoggerFactory.getLogger(ZendeskBatchSourceConfig.class);
 
   @Name(PROPERTY_START_DATE)
   @Description("Filter data to include only records which have Zendesk modified date " +
@@ -72,21 +71,6 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
   @Nullable
   @Macro
   private final String satisfactionRatingsScore;
-
-  @Name(PROPERTY_MAX_RETRY_COUNT)
-  @Description("Maximum number of retry attempts.")
-  @Macro
-  private final Integer maxRetryCount;
-
-  @Name(PROPERTY_CONNECT_TIMEOUT)
-  @Description("Maximum time in seconds connection initialization can take.")
-  @Macro
-  private final Integer connectTimeout;
-
-  @Name(PROPERTY_READ_TIMEOUT)
-  @Description("Maximum time in seconds fetching data from the server can take.")
-  @Macro
-  private final Integer readTimeout;
 
   @Name(PROPERTY_URL)
   @Description("Zendesk base url.")
@@ -138,14 +122,11 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
                                   Integer readTimeout,
                                   String zendeskBaseUrl,
                                   @Nullable String schema) {
-    super(referenceName, adminEmail, apiToken, subdomains,
-      objectsToPull, objectsToSkip);
+    super(referenceName, adminEmail, apiToken, subdomains, maxRetryCount, connectTimeout, readTimeout,
+          objectsToPull, objectsToSkip);
     this.startDate = startDate;
     this.endDate = endDate;
     this.satisfactionRatingsScore = satisfactionRatingsScore;
-    this.maxRetryCount = maxRetryCount;
-    this.connectTimeout = connectTimeout;
-    this.readTimeout = readTimeout;
     this.zendeskBaseUrl = zendeskBaseUrl;
     this.schema = schema;
   }
@@ -163,18 +144,6 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
   @Nullable
   public String getSatisfactionRatingsScore() {
     return satisfactionRatingsScore;
-  }
-
-  public Integer getMaxRetryCount() {
-    return maxRetryCount;
-  }
-
-  public Integer getConnectTimeout() {
-    return connectTimeout;
-  }
-
-  public Integer getReadTimeout() {
-    return readTimeout;
   }
 
   public String getZendeskBaseUrl() {
@@ -200,7 +169,7 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
       return Schema.parseJson(schema);
     } catch (IOException | IllegalStateException e) {
       collector.addFailure(String.format("Unable to parse output schema: '%s'.", schema),
-          null)
+                           null)
         .withConfigProperty(PROPERTY_SCHEMA);
       throw collector.getOrThrowException();
     }
@@ -208,8 +177,12 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
 
   @Override
   public void validate(FailureCollector collector) {
-    super.validate(collector);
-    validateConnection(collector);
+    try {
+      super.validate(collector);
+      validateConnection(collector);
+    } catch (IOException e) {
+      collector.addFailure("Unable to validate the connection", "Please check the values.");
+    }
     if (!containsMacro(PROPERTY_START_DATE)
       && !containsMacro(PROPERTY_OBJECTS_TO_PULL)) {
       try {
@@ -234,25 +207,8 @@ public class ZendeskBatchSourceConfig extends BaseZendeskSourceConfig {
   }
 
   @VisibleForTesting
-  void validateConnection(FailureCollector collector) {
-    if (containsMacro(BaseZendeskSourceConfig.PROPERTY_ADMIN_EMAIL)
-      || containsMacro(BaseZendeskSourceConfig.PROPERTY_API_TOKEN)
-      || containsMacro(BaseZendeskSourceConfig.PROPERTY_SUBDOMAINS)
-      || containsMacro(ZendeskBatchSourceConfig.PROPERTY_MAX_RETRY_COUNT)
-      || containsMacro(ZendeskBatchSourceConfig.PROPERTY_CONNECT_TIMEOUT)
-      || containsMacro(ZendeskBatchSourceConfig.PROPERTY_READ_TIMEOUT)) {
-      return;
-    }
-
-    getSubdomains().forEach(subdomain -> {
-      try (PagedIterator pagedIterator = new PagedIterator(this, ObjectType.GROUPS, subdomain)) {
-        pagedIterator.hasNext();
-      } catch (IOException | ConnectionTimeoutException e) {
-        collector.addFailure(String.format("There was an issue communicating with Zendesk subdomain '%s'.",
-            subdomain), null)
-          .withConfigProperty(BaseZendeskSourceConfig.PROPERTY_SUBDOMAINS);
-      }
-    });
+  void validateConnection(FailureCollector collector) throws IOException {
+    getConnection().validateConnectionParameters(collector);
   }
 
   private void validateIntervalFilterProperty(String propertyName, String datetime, FailureCollector collector) {

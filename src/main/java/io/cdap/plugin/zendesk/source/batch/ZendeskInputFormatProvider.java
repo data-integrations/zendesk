@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.cdap.cdap.api.data.batch.InputFormatProvider;
-import io.cdap.plugin.zendesk.source.batch.util.ZendeskBatchSourceConstants;
+import io.cdap.plugin.zendesk.source.common.ZendeskConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -45,10 +45,10 @@ public class ZendeskInputFormatProvider implements InputFormatProvider {
                                     List<String> objectsToPull,
                                     Map<String, String> schemas, String pluginName) {
     this.conf = new ImmutableMap.Builder<String, String>()
-      .put(ZendeskBatchSourceConstants.PROPERTY_CONFIG_JSON, GSON.toJson(config))
-      .put(ZendeskBatchSourceConstants.PROPERTY_OBJECTS_JSON, GSON.toJson(objectsToPull))
-      .put(ZendeskBatchSourceConstants.PROPERTY_SCHEMAS_JSON, GSON.toJson(schemas))
-      .put(ZendeskBatchSourceConstants.PROPERTY_PLUGIN_NAME, pluginName)
+      .put(ZendeskConstants.PROPERTY_CONFIG_JSON, GSON.toJson(config))
+      .put(ZendeskConstants.PROPERTY_OBJECTS_JSON, GSON.toJson(objectsToPull))
+      .put(ZendeskConstants.PROPERTY_SCHEMAS_JSON, GSON.toJson(schemas))
+      .put(ZendeskConstants.PROPERTY_PLUGIN_NAME, pluginName)
       .build();
   }
 

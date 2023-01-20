@@ -29,6 +29,7 @@ import io.cdap.cdap.etl.mock.common.MockArguments;
 import io.cdap.cdap.etl.mock.common.MockEmitter;
 import io.cdap.cdap.etl.mock.common.MockPipelineConfigurer;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
+import io.cdap.plugin.zendesk.connector.ZendeskConnectorConfig;
 import io.cdap.plugin.zendesk.source.common.ObjectTypeSchemaConstants;
 
 import org.apache.hadoop.io.NullWritable;
@@ -36,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ZendeskBatchSourceConfigTest {
@@ -44,7 +46,7 @@ public class ZendeskBatchSourceConfigTest {
   private static MockPipelineConfigurer pipelineConfigurer = null;
 
   @Test
-  public void testValidate() {
+  public void testValidate() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -71,7 +73,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testValidateEmptyDates() {
+  public void testValidateEmptyDates() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -98,7 +100,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testValidateBatchObject() {
+  public void testValidateBatchObject() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -125,7 +127,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testValidateStartDateForBatchObject() {
+  public void testValidateStartDateForBatchObject() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -157,7 +159,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testInvalidStartDate() {
+  public void testInvalidStartDate() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -189,7 +191,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testInvalidEndDate() {
+  public void testInvalidEndDate() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -221,7 +223,7 @@ public class ZendeskBatchSourceConfigTest {
   }
 
   @Test
-  public void testValidateConnection() {
+  public void testValidateConnection() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "reference",
       "email@test.com",
@@ -244,7 +246,7 @@ public class ZendeskBatchSourceConfigTest {
     Assert.assertEquals(1, collector.getValidationFailures().size());
     List<ValidationFailure.Cause> causeList = collector.getValidationFailures().get(0).getCauses();
     Assert.assertEquals(1, causeList.size());
-    Assert.assertEquals(ZendeskBatchSourceConfig.PROPERTY_SUBDOMAINS, collector.getValidationFailures().get(0)
+    Assert.assertEquals(ZendeskConnectorConfig.PROPERTY_ADMIN_EMAIL, collector.getValidationFailures().get(0)
       .getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
   }
 
@@ -361,7 +363,7 @@ public class ZendeskBatchSourceConfigTest {
     }
   }
   @Test
-  public void testPrepareRunWithInvalidBasicParam() {
+  public void testPrepareRunWithInvalidBasicParam() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "ref",
       "",
@@ -423,7 +425,7 @@ public class ZendeskBatchSourceConfigTest {
     }
   }
   @Test
-  public void testPrepareRunMultiSourceWithInvalidBasicParam() {
+  public void testPrepareRunMultiSourceWithInvalidBasicParam() throws IOException {
     ZendeskBatchSourceConfig config = new ZendeskBatchSourceConfig(
       "ref",
       "",

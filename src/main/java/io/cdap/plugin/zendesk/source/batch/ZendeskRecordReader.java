@@ -23,8 +23,8 @@ import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.format.StructuredRecordStringConverter;
 import io.cdap.plugin.zendesk.source.batch.http.CommentsPagedIterator;
 import io.cdap.plugin.zendesk.source.batch.http.PagedIterator;
-import io.cdap.plugin.zendesk.source.batch.util.ZendeskBatchSourceConstants;
 import io.cdap.plugin.zendesk.source.common.ObjectType;
+import io.cdap.plugin.zendesk.source.common.ZendeskConstants;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
@@ -66,7 +66,7 @@ public class ZendeskRecordReader extends RecordReader<NullWritable, StructuredRe
   public void initialize(InputSplit split,
                          TaskAttemptContext taskAttemptContext) {
     Configuration conf = taskAttemptContext.getConfiguration();
-    String configJson = conf.get(ZendeskBatchSourceConstants.PROPERTY_CONFIG_JSON);
+    String configJson = conf.get(ZendeskConstants.PROPERTY_CONFIG_JSON);
     ZendeskBatchSourceConfig config = GSON.fromJson(configJson, ZendeskBatchSourceConfig.class);
     pagedIterator = createIterator(config);
   }

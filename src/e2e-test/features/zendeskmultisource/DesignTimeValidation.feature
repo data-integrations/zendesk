@@ -59,5 +59,6 @@ Feature: Zendesk Multi Source - Design time validation scenarios
       | INVALID_SUBDOMAIN |
     And Fill Objects to pull List with below listed Objects:
       | Users |
+    And Enter input plugin property: "startDate" with value: "start.date"
     And Click on the Validate button
     Then Verify that the Plugin Property: "subdomains" is displaying an in-line error message: "invalid.property.subdomain"
