@@ -26,6 +26,7 @@ import io.cdap.e2e.utils.BigQueryClient;
 import io.cdap.e2e.utils.ElementHelper;
 import io.cdap.e2e.utils.PluginPropertyUtils;
 import io.cdap.e2e.utils.SeleniumHelper;
+import io.cdap.plugin.tests.hooks.TestSetupHooks;
 import io.cdap.plugin.utils.enums.Subdomains;
 import io.cdap.plugin.zendesk.locators.ZendeskPropertiesPage;
 import org.junit.Assert;
@@ -48,6 +49,8 @@ public class ZendeskPropertiesPageActions {
   private static final Logger logger = LoggerFactory.getLogger(ZendeskPropertiesPageActions.class);
   private static Gson gson = new Gson();
   private static List<String> bigQueryrows = new ArrayList<>();
+
+  public static BigInteger uniqueId;
 
   static {
     SeleniumHelper.getPropertiesLocators(ZendeskPropertiesPage.class);
@@ -91,31 +94,21 @@ public class ZendeskPropertiesPageActions {
     ElementHelper.clickUsingActions(CdfPluginPropertiesLocators.pluginPropertiesPageHeader);
   }
 
-  public static void verifyIfRecordCreatedInSinkForSingleObjectIsCorrect(String expectedOutputFile)
+  public static void verifyIfRecordCreatedInSinkForSingleObjectIsCorrect()
     throws IOException, InterruptedException {
-    List<String> expectedOutput = new ArrayList<>();
-    try (BufferedReader bf1 = Files.newBufferedReader(Paths.get(PluginPropertyUtils.pluginProp(expectedOutputFile)))) {
-      String line;
-      while ((line = bf1.readLine()) != null) {
-        expectedOutput.add(line);
-      }
-    }
-
-    for (int expectedRow = 0; expectedRow < expectedOutput.size(); expectedRow++) {
-      JsonObject expectedOutputAsJson = gson.fromJson(expectedOutput.get(expectedRow), JsonObject.class);
-      BigInteger uniqueId = expectedOutputAsJson.get("id").getAsBigInteger();
+      JsonObject expectedOutputAsJson = gson.fromJson(TestSetupHooks.testdata_Group, JsonObject.class);
+      JsonObject group = (JsonObject) expectedOutputAsJson.get("group");
+      System.out.println(group);
+      uniqueId = group.get("id").getAsBigInteger();
       getBigQueryTableData(PluginPropertyUtils.pluginProp("dataset"),
                            PluginPropertyUtils.pluginProp("bqtarget.table"), uniqueId);
+      Assert.assertTrue(ZendeskPropertiesPageActions.compareValueOfBothResponses(group.toString(),
+                                                                                 bigQueryrows.get(0)));
+    }
 
-    }
-    for (int row = 0; row < bigQueryrows.size() && row < expectedOutput.size(); row++) {
-      Assert.assertTrue(ZendeskPropertiesPageActions.compareValueOfBothResponses(expectedOutput.get(row),
-                                                                                 bigQueryrows.get(row)));
-    }
-  }
 
   public static void verifyIfRecordCreatedInSinkForMultipleObjectsAreCorrect(String expectedOutputFile)
-    throws IOException, InterruptedException {
+          throws IOException, InterruptedException {
     List<String> expectedOutput = new ArrayList<>();
     try (BufferedReader bf1 = Files.newBufferedReader(Paths.get(PluginPropertyUtils.pluginProp(expectedOutputFile)))) {
       String line;
@@ -126,7 +119,7 @@ public class ZendeskPropertiesPageActions {
 
     List<String> bigQueryDatasetTables = new ArrayList<>();
     TableResult tablesSchema = ZendeskPropertiesPageActions.getTableNamesFromDataSet
-      (PluginPropertyUtils.pluginProp("dataset"));
+            (PluginPropertyUtils.pluginProp("dataset"));
     tablesSchema.iterateAll().forEach(value -> bigQueryDatasetTables.add(value.get(0).getValue().toString()));
     System.out.println(bigQueryDatasetTables.size());
 
@@ -134,13 +127,14 @@ public class ZendeskPropertiesPageActions {
       JsonObject expectedOutputAsJson = gson.fromJson(expectedOutput.get(expectedRow), JsonObject.class);
       BigInteger uniqueId = expectedOutputAsJson.get("id").getAsBigInteger();
       getBigQueryTableData(PluginPropertyUtils.pluginProp("dataset"),
-                           bigQueryDatasetTables.get(0), uniqueId);
+              bigQueryDatasetTables.get(0), uniqueId);
     }
     for (int row = 0; row < bigQueryrows.size() && row < expectedOutput.size(); row++) {
       Assert.assertTrue(ZendeskPropertiesPageActions.compareValueOfBothResponses(expectedOutput.get(row),
-                                                                                 bigQueryrows.get(row)));
+              bigQueryrows.get(row)));
     }
-  }
+    }
+
 
   static boolean compareValueOfBothResponses(String zendeskResponse, String bigQueryResponse) {
     Type type = new TypeToken<Map<String, Object>>() {
@@ -149,13 +143,17 @@ public class ZendeskPropertiesPageActions {
     Map<String, Object> bigQueryResponseInMap = gson.fromJson(bigQueryResponse, type);
     MapDifference<String, Object> mapDifference = Maps.difference(zendeskResponseInmap, bigQueryResponseInMap);
     logger.info("Assertion :" + mapDifference);
-
     return mapDifference.areEqual();
   }
 
   public static void getBigQueryTableData(String dataset, String table, BigInteger uniqueId)
     throws IOException, InterruptedException {
     String projectId = PluginPropertyUtils.pluginProp("projectId");
+
+    // Altering the table to get the field names in sync with Zendesk response.
+    String alterQuery = "ALTER TABLE `" + projectId + "." + dataset + "." + table +
+            "` RENAME COLUMN updatedAt to updated_at,RENAME COLUMN createdAt to created_at  ";
+    BigQueryClient.executeQuery(alterQuery);
     String selectQuery = "SELECT TO_JSON(t) FROM `" + projectId + "." + dataset + "." + table + "` AS t WHERE " +
       "id=" + uniqueId + " ";
     TableResult result = BigQueryClient.getQueryResult(selectQuery);
@@ -169,5 +167,5 @@ public class ZendeskPropertiesPageActions {
 
     return BigQueryClient.getQueryResult(selectQuery);
   }
-}
+ }
 

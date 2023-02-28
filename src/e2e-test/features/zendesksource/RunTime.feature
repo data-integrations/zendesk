@@ -17,7 +17,7 @@
 @Regression
 Feature: Zendesk Source - Run time scenarios
 
-  @TS-ZD-RNTM-01 @BQ_SINK @FILE_PATH @BQ_SINK_CLEANUP
+  @TS-ZD-RNTM-01 @BQ_SINK @BQ_SINK_CLEANUP @CREATE_GROUP @DELETE_GROUP
   Scenario: Verify user should be able to preview and deploy the pipeline when plugin is configured for a Non hierarchical object
     When Open Datafusion Project to configure pipeline
     And Select plugin: "Zendesk" from the plugins list as: "Source"
@@ -38,6 +38,7 @@ Feature: Zendesk Source - Run time scenarios
     And Enter input plugin property: "datasetProject" with value: "datasetprojectId"
     And Enter input plugin property: "dataset" with value: "dataset"
     And Enter input plugin property: "table" with value: "bqtarget.table"
+    And Replace input plugin property: "serviceFilePath" with value: "file.path"
     And Validate "BigQuery" plugin properties
     And Close the Plugin Properties page
     And Preview and run the pipeline
@@ -52,9 +53,9 @@ Feature: Zendesk Source - Run time scenarios
     And Open and capture logs
     And Verify the pipeline status is "Succeeded"
     And Close the pipeline logs
-    Then Validate record created in Sink application for Single object is equal to expected output file "groupsTestOutputFile"
+    Then Validate record created in Sink application for Single object is equal to expected output file
 
-  @TS-ZD-RNTM-02 @BQ_SINK @FILE_PATH @BQ_SINK_CLEANUP
+  @TS-ZD-RNTM-02 @BQ_SINK @BQ_SINK_CLEANUP @CREATE_GROUP @DELETE_GROUP
   Scenario: Verify user should be able to preview and deploy the pipeline when plugin is configured for Advanced properties
     When Open Datafusion Project to configure pipeline
     And Select plugin: "Zendesk" from the plugins list as: "Source"
@@ -91,10 +92,10 @@ Feature: Zendesk Source - Run time scenarios
     And Open and capture logs
     And Verify the pipeline status is "Succeeded"
     And Close the pipeline logs
-    Then Validate record created in Sink application for Single object is equal to expected output file "groupsTestOutputFile"
+    Then Validate record created in Sink application for Single object is equal to expected output file
 
   @TS-ZD-RNTM-03
-  Scenario: Verify user should be able to preview and deploy and Run the pipeline when plugin is configured for a herarchical object with File Sink
+  Scenario: Verify user should be able to preview and deploy and Run the pipeline when plugin is configured for a hierarchical object with File Sink
     When Open Datafusion Project to configure pipeline
     And Select plugin: "Zendesk" from the plugins list as: "Source"
     And Navigate to the properties page of plugin: "Zendesk"

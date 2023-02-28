@@ -572,6 +572,9 @@
                 <ZENDESK_API_TOKEN>
                   ${ZENDESK_API_TOKEN}
                 </ZENDESK_API_TOKEN>
+                <ZENDESK_PASSWORD>
+                  ${ZENDESK_PASSWORD}
+                </ZENDESK_PASSWORD>
               </environmentVariables>
 
             </configuration>
@@ -631,9 +634,16 @@
         <dependency>
           <groupId>io.cdap.tests.e2e</groupId>
           <artifactId>cdap-e2e-framework</artifactId>
-          <version>0.1.0-SNAPSHOT</version>
+          <version>0.2.0-SNAPSHOT</version>
           <scope>test</scope>
         </dependency>
+
+        <dependency>
+          <groupId>io.rest-assured</groupId>
+          <artifactId>rest-assured</artifactId>
+          <version>5.1.1</version>
+        </dependency>
+
       </dependencies>
     </profile>
     <profile>

@@ -41,7 +41,7 @@ import java.util.List;
 public class ZendeskBatchSourceConfigTest {
 
   private static final String MOCK_STAGE = "mockStage";
-  private static MockPipelineConfigurer pipelineConfigurer = null;
+  private static MockPipelineConfigurer pipelineConfigure = null;
 
   @Test
   public void testValidate() {
@@ -352,8 +352,8 @@ public class ZendeskBatchSourceConfigTest {
       "");
     try {
       ZendeskBatchSource zendeskBatchSource = new ZendeskBatchSource(config);
-      pipelineConfigurer = new MockPipelineConfigurer(null);
-      zendeskBatchSource.configurePipeline(pipelineConfigurer);
+      pipelineConfigure = new MockPipelineConfigurer(null);
+      zendeskBatchSource.configurePipeline(pipelineConfigure);
       Assert.fail("Reference name validation should fail");
     } catch (ValidationException ve) {
       List<ValidationFailure> failures = ve.getFailures();
@@ -414,8 +414,8 @@ public class ZendeskBatchSourceConfigTest {
       "");
     try {
       ZendeskBatchMultiSource zendeskBatchMultiSource = new ZendeskBatchMultiSource(config);
-      pipelineConfigurer = new MockPipelineConfigurer(null);
-      zendeskBatchMultiSource.configurePipeline(pipelineConfigurer);
+      pipelineConfigure = new MockPipelineConfigurer(null);
+      zendeskBatchMultiSource.configurePipeline(pipelineConfigure);
       Assert.fail("Reference name validation should fail");
     } catch (ValidationException ve) {
       List<ValidationFailure> failures = ve.getFailures();

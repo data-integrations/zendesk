@@ -44,10 +44,10 @@ public class DesignTimeSteps {
     ZendeskPropertiesPageActions.selectDropdowWithMultipleOptionsForObjectsToSkip(tablesList);
   }
 
-  @Then("Validate record created in Sink application for Single object is equal to expected output file {string}")
-  public void verifyIfNewRecordCreatedInSinkApplicationForObjectIsCorrect(String expectedOutputFile)
+  @Then("Validate record created in Sink application for Single object is equal to expected output file")
+  public void verifyIfNewRecordCreatedInSinkApplicationForObjectIsCorrect()
     throws IOException, InterruptedException {
-    ZendeskPropertiesPageActions.verifyIfRecordCreatedInSinkForSingleObjectIsCorrect(expectedOutputFile);
+    ZendeskPropertiesPageActions.verifyIfRecordCreatedInSinkForSingleObjectIsCorrect();
   }
 
   @Then("Validate record created in Sink application for Multi object is equal to expected output file {string}")
