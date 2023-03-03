@@ -15,6 +15,7 @@
 @ZendeskSource
 @Smoke
 @Regression
+@R
 Feature: Zendesk Source - Run time scenarios
 
   @TS-ZD-RNTM-MACRO-01 @BQ_SINK @BQ_SINK_CLEANUP @FILE_PATH

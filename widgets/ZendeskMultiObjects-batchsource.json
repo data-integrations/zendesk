@@ -4,6 +4,81 @@
   },
   "configuration-groups": [
     {
+      "label": "Connection",
+      "properties": [
+        {
+          "widget-type": "toggle",
+          "label": "Use connection",
+          "name": "useConnection",
+          "widget-attributes": {
+            "on": {
+              "value": "true",
+              "label": "YES"
+            },
+            "off": {
+              "value": "false",
+              "label": "NO"
+            },
+            "default": "false"
+          }
+        },
+        {
+          "widget-type": "connection-select",
+          "label": "Connection",
+          "name": "connection",
+          "widget-attributes": {
+            "connectionType": "Zendesk"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Admin Email",
+          "name": "adminEmail"
+        },
+        {
+          "widget-type": "password",
+          "label": "API Token",
+          "name": "apiToken"
+        },
+        {
+          "widget-type": "csv",
+          "label": "Subdomains",
+          "name": "subdomains",
+          "widget-attributes": {
+            "delimiter": ",",
+            "value-placeholder": "List of Subdomains to read object from."
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Max Retry Count",
+          "name": "maxRetryCount",
+          "widget-attributes": {
+            "min": "0",
+            "default": "10"
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Connect Timeout",
+          "name": "connectTimeout",
+          "widget-attributes": {
+            "min": "0",
+            "default": "300"
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Read Timeout",
+          "name": "readTimeout",
+          "widget-attributes": {
+            "min": "0",
+            "default": "300"
+          }
+        }
+      ]
+    },
+    {
       "label": "Basic",
       "properties": [
         {
@@ -111,81 +186,6 @@
           "widget-attributes": {
             "placeholder": "The name of the field that holds the table name.",
             "default": "tablename"
-          }
-        }
-      ]
-    },
-    {
-      "label": "Connection",
-      "properties": [
-        {
-          "widget-type": "toggle",
-          "label": "Use connection",
-          "name": "useConnection",
-          "widget-attributes": {
-            "on": {
-              "value": "true",
-              "label": "YES"
-            },
-            "off": {
-              "value": "false",
-              "label": "NO"
-            },
-            "default": "false"
-          }
-        },
-        {
-          "widget-type": "connection-select",
-          "label": "Connection",
-          "name": "connection",
-          "widget-attributes": {
-            "connectionType": "Zendesk"
-          }
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Admin Email",
-          "name": "adminEmail"
-        },
-        {
-          "widget-type": "password",
-          "label": "API Token",
-          "name": "apiToken"
-        },
-        {
-          "widget-type": "csv",
-          "label": "Subdomains",
-          "name": "subdomains",
-          "widget-attributes": {
-            "delimiter": ",",
-            "value-placeholder": "List of Subdomains to read object from."
-          }
-        },
-        {
-          "widget-type": "number",
-          "label": "Max Retry Count",
-          "name": "maxRetryCount",
-          "widget-attributes": {
-            "min": "0",
-            "default": "10"
-          }
-        },
-        {
-          "widget-type": "number",
-          "label": "Connect Timeout",
-          "name": "connectTimeout",
-          "widget-attributes": {
-            "min": "0",
-            "default": "300"
-          }
-        },
-        {
-          "widget-type": "number",
-          "label": "Read Timeout",
-          "name": "readTimeout",
-          "widget-attributes": {
-            "min": "0",
-            "default": "300"
           }
         }
       ]

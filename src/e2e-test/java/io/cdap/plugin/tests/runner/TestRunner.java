@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
   features = {"src/e2e-test/features"},
   glue = {"io.cdap.plugin.zendesk.stepsdesign", "stepsdesign", "io.cdap.plugin.tests.hooks"},
-  tags = {"@Regression"},
+  tags = {"@R"},
   monochrome = true,
   plugin = {"pretty", "html:target/cucumber-html-report", "json:target/cucumber-reports/cucumber.json",
     "junit:target/cucumber-reports/cucumber.xml"}

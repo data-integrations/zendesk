@@ -15,6 +15,7 @@
 @ZendeskMultiSource
 @Smoke
 @Regression
+@R
 Feature: Zendesk Multi Source - Run time scenarios
 
   @TS-ZD-MULTI-RNTM-01 @BQ_SINK @BQ_MULTI_CLEANUP @FILE_PATH
