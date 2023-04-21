@@ -24,13 +24,6 @@ Configuration
 
 **Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata.
 
-**Admin Email:** Zendesk admin email.
-
-**API Token:** Zendesk API token. Can be obtained from the Zendesk Support Admin interface.
-For information about generating the Zendesk API token, see [Zendesk API Token](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-).
-
-**Subdomains:** List of Zendesk [Subdomains](https://support.zendesk.com/hc/en-us/articles/4409381383578-Where-can-I-find-my-Zendesk-subdomain-) to read object from.
-
 **Object to Pull:** Objects to pull from Zendesk API. If not specified, data is pulled from all objects. Default is blank.
 
 **Object to Skip:** Objects to skip from Zendesk API. Default is blank.
@@ -64,7 +57,18 @@ Only Applicable for Satisfaction Ratings object.
 **Table Name Field:** The name of the field that holds the table name. Must not be the name of any table column that
 will be read. Defaults to `tablename`.
 
-### Advanced
+### Connection
+
+**Use Connection:** Whether to use a connection. If a connection is used, you do not need to provide the credentials.
+
+**Connection:** Name of the connection to use. You also can use the macro function ${conn(connection-name)}.
+
+**Admin Email:** Zendesk admin email.
+
+**API Token:** Zendesk API token. Can be obtained from the Zendesk Support Admin interface.
+For information about generating the Zendesk API token, see [Zendesk API Token](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-).
+
+**Subdomains:** List of Zendesk [Subdomains](https://support.zendesk.com/hc/en-us/articles/4409381383578-Where-can-I-find-my-Zendesk-subdomain-) to read object from.
 
 **Max Retry Count:** Maximum number of retry attempts. Default is 20.
 
@@ -82,13 +86,13 @@ corresponding CDAP types.
 
 | Zendesk type           | CDAP type |
 |------------------------|-----------|
-| Boolean                | Boolean   |
+| Boolean                | boolean   |
 | DateTime/Time          | string    |
 | Decimal                | string    |
-| int16/int34/int64/long | Long      |
-| String                 | String    |
-| Array                  | Array     |
-| Record                 | Record    |
+| int16/int34/int64/long | long      |
+| String                 | string    |
+| Array                  | array     |
+| Record                 | record    |
 
 Limitations
 ----------

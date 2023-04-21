@@ -21,13 +21,6 @@ Configuration
 
 **Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata.
 
-**Admin Email:** Zendesk admin email.
-
-**API Token:** Zendesk API token. Can be obtained from the Zendesk Support Admin interface.
-For API Token generation, see the [Zendesk documentation](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-).
-
-**Subdomains:** List of Zendesk Subdomains to read object from.
-
 **Object to Pull:** Objects to pull from Zendesk API. Default is Groups.
 
 **Start Date:** Filter data to include only records that have a Zendesk modified date that is greater than
@@ -56,7 +49,19 @@ If no value is provided, no upper bound is applied.
 **Satisfaction Ratings Score:** Filter Satisfaction Ratings object to include only records that have a Zendesk score
 equal to the specified score. Only applicable for the Satisfaction Rating object.
 
-### Advanced
+### Connection
+
+**Use Connection:** Whether to use a connection. If a connection is used, you do not need to provide the credentials.
+
+**Connection:** Name of the connection to use. Object Name information will be provided by the connection.
+You also can use the macro function ${conn(connection-name)}.
+
+**Admin Email:** Zendesk admin email.
+
+**API Token:** Zendesk API token. Can be obtained from the Zendesk Support Admin interface.
+For API Token generation, see the [Zendesk documentation](https://support.zendesk.com/hc/en-us/articles/226022787-Generating-a-new-API-token-).
+
+**Subdomains:** List of Zendesk Subdomains to read object from.
 
 **Max Retry Count:** Maximum number of retry attempts. Default is 20.
 
@@ -71,13 +76,13 @@ corresponding CDAP types.
 
 | Zendesk type           | CDAP type |
 |------------------------|-----------|
-| Boolean                | Boolean   |
+| Boolean                | boolean   |
 | DateTime/Time          | string    |
 | Decimal                | string    |
-| int16/int34/int64/long | Long      |
-| String                 | String    |
-| Array                  | Array     |
-| Record                 | Record    |
+| int16/int34/int64/long | long      |
+| String                 | string    |
+| Array                  | array     |
+| Record                 | record    |
 
 
 Limitations

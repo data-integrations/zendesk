@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @Plugin(type = BatchSource.PLUGIN_TYPE)
 @Name(ZendeskBatchMultiSource.NAME)
-@Description("Read data from Zendesk.")
+@Description("Read data from multiple objects in Zendesk.")
 public class ZendeskBatchMultiSource extends BatchSource<NullWritable, StructuredRecord, StructuredRecord> {
 
   public static final String NAME = "ZendeskMultiObjects";
