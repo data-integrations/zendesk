@@ -3,16 +3,7 @@
 
 Description
 -----------
-This source reads objects from Zendesk. It extracts reportable data from the Zendesk objects. 
-The Zendesk Batch Source plugin enables bulk data extraction from Zendesk. 
-You can configure and execute bulk data transfers from Zendesk without any coding.
-
-Examples of objects are Article Comments, Post Comments, Requests Comments, Ticket Comments,
-Groups, Organizations, Satisfaction Ratings, Tags, Ticket Fields,
-Ticket Metrics, Ticket Metric Events, Tickets, Users.
-Tags object lists the 500 most popular tags in the last 60 days.
-
-The data which should be read is specified using object and filters for that object.
+The Zendesk Batch Source plugin lets you efficiently extract reportable data from Zendesk objects. 
 
 Configuration
 -------------
@@ -85,43 +76,32 @@ corresponding CDAP types.
 | Record                 | record    |
 
 
-Limitations
+Pagination
 ----------
+Zendesk plugin supports two types of pagination: [offset](https://developer.zendesk.com/documentation/developer-tools/pagination/paginating-through-lists-using-offset-pagination/) 
+and [time-based](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#time-based-incremental-exports)  pagination.
 
-Zendesk plugin supports two types of pagination: [offset](https://developer.zendesk.com/documentation/developer-tools/pagination/paginating-through-lists-using-offset-pagination/) and [time-based](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#time-based-incremental-exports)  pagination.
 Offset and Time-Based Pagination might result in data duplication.
-
-### Data Duplication issues with Zendesk APIs
-
-This plugin might return duplicate records for offset and time-based exports as mentioned in Zendesk docs.
-[Zendesk documentation](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#excluding-duplicate-items)
-
-Objects that support both offset and time-based exports:
-Users,
-Tickets,
-Ticket Metric Events,
-Organizations, and
-Ticket Comments.
-
+[Zendesk documentation](https://developer.zendesk.com/documentation/ticketing/managing-tickets/using-the-incremental-export-api/#excluding-duplicate-items)  
 To solve the duplication issue, add the Deduplicate plugin from the Analytics list after the Zendesk Batch Source in the pipeline.
 
 Supported Zendesk Objects
 ----------
 
-| Objects Name          | Supported Pagination Type  | Endpoint URI (https://{subDomain}.zendesk.com/api/v2/) |
-|-----------------------|----------------------------|--------------------------------------------------------|
-| Users                 | Offset, Time-based         |incremental/users.json                                                       |
-| Tickets               | Offset, Time-based         |incremental/tickets.json                                                       |
-| Ticket Metric Events  | Offset, Time-based         |incremental/ticket_metric_events.json                                                       |
-| Ticket Metrics        | Offset                     |ticket_metrics.json                                                       |
-| Ticket Fields         | Offset                     |ticket_fields.json                                                       |
-| Tags                  | Offset                     |tags.json                                                        |
-| Satisfaction Ratings  | Offset                     |satisfaction_ratings.json                                                        |
-| Organizations         | Offset, Time-based         |incremental/organizations.json                                                        |
-| Groups                | Offset                     |groups.json                                                        |    
-| Ticket Comments       | Offset, Time-based         |incremental/ticket_events.json?include=comment_events                                                        |
-| Request Comments      | Offset                     |requests/{requestId}/comments.json*                                                        |
-| Post Comments         | Offset                     |community/users/{userId}/comments.json                                                        |
-| Article Comments      | Offset                     |help_center/users/{userId}/comments.json                                                        |
+| Objects Name          | Supported Pagination Type  | Endpoint URI (`https://{subDomain}.zendesk.com/api/v2/`): | Notes
+|-----------------------|----------------------------|--------------------------------------------------------   |------------------------------------------------------------------------------|
+| Users                 | Time-based                 |incremental/users.json                                     |                    |
+| Tickets               | Time-based                 |incremental/tickets.json                                   |                      |
+| Ticket Metric Events  | Time-based                 |incremental/ticket_metric_events.json                      |                                     |
+| Ticket Metrics        | Offset                     |ticket_metrics.json                                        |                  |
+| Ticket Fields         | Offset                     |ticket_fields.json                                         |                |
+| Tags                  | Offset                     |tags.json                                                  | Tags object lists the 500 most popular tags in the last 60 days.        |
+| Satisfaction Ratings  | Offset                     |satisfaction_ratings.json                                  |                         |
+| Organizations         | Time-based                 |incremental/organizations.json                             |                              |
+| Groups                | Offset                     |groups.json                                                |           |    
+| Ticket Comments       | Time-based                 |incremental/ticket_events.json?include=comment_events      |                                                     |
+| Request Comments      | Offset                     |requests/{requestId}/comments.json                         | Retrieve all requests and iterate over request IDs to obtain corresponding request comments.                            |
+| Post Comments         | Offset                     |community/users/{userId}/comments.json                     | Retrieve all users and iterate over user IDs to obtain the corresponding post comments.                                    |
+| Article Comments      | Offset                     |help_center/users/{userId}/comments.json                   | Retrieve all users and iterate over user IDs to obtain the corresponding article comments.
 
-*  The plugin retrieves the user and request lists, and the comments specific to a specific user and request.
+
