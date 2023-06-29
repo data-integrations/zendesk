@@ -88,20 +88,20 @@ To solve the duplication issue, add the Deduplicate plugin from the Analytics li
 Supported Zendesk Objects
 ----------
 
-| Objects Name          | Supported Pagination Type  | Endpoint URI (`https://{subDomain}.zendesk.com/api/v2/`): | Notes
-|-----------------------|----------------------------|--------------------------------------------------------   |------------------------------------------------------------------------------|
-| Users                 | Time-based                 |incremental/users.json                                     |                    |
-| Tickets               | Time-based                 |incremental/tickets.json                                   |                      |
-| Ticket Metric Events  | Time-based                 |incremental/ticket_metric_events.json                      |                                     |
-| Ticket Metrics        | Offset                     |ticket_metrics.json                                        |                  |
-| Ticket Fields         | Offset                     |ticket_fields.json                                         |                |
-| Tags                  | Offset                     |tags.json                                                  | Tags object lists the 500 most popular tags in the last 60 days.        |
-| Satisfaction Ratings  | Offset                     |satisfaction_ratings.json                                  |                         |
-| Organizations         | Time-based                 |incremental/organizations.json                             |                              |
-| Groups                | Offset                     |groups.json                                                |           |    
-| Ticket Comments       | Time-based                 |incremental/ticket_events.json?include=comment_events      |                                                     |
-| Request Comments      | Offset                     |requests/{requestId}/comments.json                         | Retrieve all requests and iterate over request IDs to obtain corresponding request comments.                            |
-| Post Comments         | Offset                     |community/users/{userId}/comments.json                     | Retrieve all users and iterate over user IDs to obtain the corresponding post comments.                                    |
-| Article Comments      | Offset                     |help_center/users/{userId}/comments.json                   | Retrieve all users and iterate over user IDs to obtain the corresponding article comments.
+| Objects Name          | Supported Pagination Type  | Endpoint URI (https://{subDomain}.zendesk.com/api/v2/) | Notes
+|-----------------------|----------------------------|--------------------------------------------------------|------------------------------------------------------------------------------|
+| Users                 | Time-based                 |incremental/users.json                                  |                    |
+| Tickets               | Time-based                 |incremental/tickets.json                                |                      |
+| Ticket Metric Events  | Time-based                 |incremental/ticket_metric_events.json                   |                                     |
+| Ticket Metrics        | Offset                     |ticket_metrics.json                                     |                  |
+| Ticket Fields         | Offset                     |ticket_fields.json                                      |                |
+| Tags                  | Offset                     |tags.json                                               | Tags object lists the 500 most popular tags in the last 60 days.        |
+| Satisfaction Ratings  | Offset                     |satisfaction_ratings.json                               |                         |
+| Organizations         | Time-based                 |incremental/organizations.json                          |                              |
+| Groups                | Offset                     |groups.json                                             |           |    
+| Ticket Comments       | Time-based                 |incremental/ticket_events.json?include=comment_events   |                                                     |
+| Request Comments      | Offset                     |requests/{requestId}/comments.json                      | Retrieve all requests and iterate over request IDs to obtain corresponding request comments.                            |
+| Post Comments         | Offset                     |community/users/{userId}/comments.json                  | Retrieve all users and iterate over user IDs to obtain the corresponding post comments.                                    |
+| Article Comments      | Offset                     |help_center/users/{userId}/comments.json                | Retrieve all users and iterate over user IDs to obtain the corresponding article comments.
 
 
