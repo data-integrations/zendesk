@@ -62,7 +62,7 @@ Feature: Zendesk Source - Design time scenarios
       | Organizations         | schema.objecttopull.organizations    |
       | Ticket Metric Events  | schema.ticketmetric.events           |
 
-  @TS-ZD-DSGN-03
+  @TS-ZD-DSGN-03 @Required
   Scenario Outline: Verify user should be able to validate the Output Schema for Objects with Start date and End date
     When Open Datafusion Project to configure pipeline
     And Select plugin: "Zendesk" from the plugins list as: "Source"

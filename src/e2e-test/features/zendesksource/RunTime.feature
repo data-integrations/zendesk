@@ -94,7 +94,7 @@ Feature: Zendesk Source - Run time scenarios
     And Close the pipeline logs
     Then Validate record created in Sink application for Single object is equal to expected output file "groupsTestOutputFile"
 
-  @TS-ZD-RNTM-03
+  @TS-ZD-RNTM-03 @Required
   Scenario: Verify user should be able to preview and deploy and Run the pipeline when plugin is configured for a herarchical object with File Sink
     When Open Datafusion Project to configure pipeline
     And Select plugin: "Zendesk" from the plugins list as: "Source"
