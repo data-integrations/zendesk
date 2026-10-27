@@ -39,10 +39,10 @@ import io.cdap.cdap.test.WorkflowManager;
 
 import org.junit.AfterClass;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,14 +90,14 @@ public abstract class BaseZendeskBatchSourceTest extends HydratorTestBase {
   public TestName testName = new TestName();
 
   @BeforeClass
-  public static void setupTestClass() throws Exception {
-    try {
-      Assume.assumeNotNull(ADMIN_EMAIL, API_TOKEN, SUBDOMAIN);
-    } catch (AssumptionViolatedException e) {
+  public static void initialize() throws Exception {
+    if (ADMIN_EMAIL == null || API_TOKEN == null || SUBDOMAIN == null) {
       LOG.warn("ETL tests are skipped. Please find the instructions on enabling it at " +
         "BaseZendeskBatchSourceTest javadoc.");
-      throw e;
+      return;
     }
+
+    HydratorTestBase.initialize();
 
     zendeskClient = new Zendesk.Builder(String.format("https://%s.zendesk.com/", SUBDOMAIN))
       .setUsername(ADMIN_EMAIL)
@@ -113,12 +113,20 @@ public abstract class BaseZendeskBatchSourceTest extends HydratorTestBase {
       ZendeskBatchSource.class);
   }
 
+  @Before
+  public void setUp() {
+    Assume.assumeNotNull(ADMIN_EMAIL, API_TOKEN, SUBDOMAIN);
+  }
+
   @AfterClass
-  public static void tearDownTestClass() {
+  public static void finish() throws Exception {
     USER_IDS.forEach(BaseZendeskBatchSourceTest::deleteUser);
     GROUP_IDS.forEach(BaseZendeskBatchSourceTest::deleteGroup);
     if (zendeskClient != null) {
       zendeskClient.close();
+    }
+    if (ADMIN_EMAIL != null && API_TOKEN != null && SUBDOMAIN != null) {
+      HydratorTestBase.finish();
     }
   }
 
