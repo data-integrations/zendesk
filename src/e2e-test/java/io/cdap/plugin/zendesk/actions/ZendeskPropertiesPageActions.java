@@ -73,7 +73,7 @@ public class ZendeskPropertiesPageActions {
 
   public static void selectDropdowWithMultipleOptionsForObjectsToPull(List<String> tablesList) {
     int objectsToPull = tablesList.size();
-    ZendeskPropertiesPage.objectDropdownForMultiObjectsToPull.click();
+    ElementHelper.clickOnElement(ZendeskPropertiesPage.objectDropdownForMultiObjectsToPull);
     for (int i = 0; i < objectsToPull; i++) {
       logger.info("Select checkbox option: " + tablesList.get(i));
       ElementHelper.selectCheckbox(ZendeskPropertiesPage.locateObjectCheckBoxInMultiObjectsSelector(tablesList.get(i)));
